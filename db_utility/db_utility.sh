@@ -2,22 +2,27 @@
 #DB Utilities Console
 # a hub for SWG DB utilities
 #Created by RisTanA 12/29/2015
+#created: 12/29/2015
+#last edit: 1/1/2016
 #version 0.1
-#last edit 12/29/2015
+
+
+#Wishlist:
+#sub menus in the program list
+#better credential check
 
 #set variables
 selection=0
-pw=0
-pwcheck=420
 confirm=0
 falseInput=0
 cread_check_yn=0
 inputVariable=0
 
+
 ##functions start here
 
 #main_console function
-#
+
 main_console()
 {
 echo '##################################'
@@ -41,26 +46,6 @@ echo 'Awaiting input...'
 read falseInput
 }
 
-#cant_paint function
-cant_paint()
-{
-echo ' '
-echo 'Authorized users only'
-echo 'Enter password:'
-read pw
-if [ $pw = $pwcheck ]
-then
-echo ' '
-echo 'Access Granted'
-echo ' '
-
-else
-echo 'Permission Denied'
-stop_program
-
-fi
-awaiting_input
-}
 
 #dba_credentials function
 dba_credentials()
@@ -86,6 +71,7 @@ credentials_check()
 {
 echo ' '
 echo 'Checking credentials...'
+echo ' note: blank is good'
 echo ' '
 awaiting_input
 
@@ -139,6 +125,7 @@ echo '**********************************'
 echo ' '
 echo '1: Lock Characters'
 echo '2: Unlock Characters'
+echo '3: Move Characters'
 echo '999: test'
 echo ' '
 echo '**********************************'
@@ -280,7 +267,7 @@ confirm_selection
 
 echo ' '
 echo ' '
-echo 'Which character would you like to lock:'
+echo 'Which character would you like to lock?'
 read inputVariable
 echo 'you have selected to lock:' $inputVariable
 echo ' '
@@ -309,7 +296,7 @@ confirm_selection
 
 echo ' '
 echo ' '
-echo 'Which character would you like to unlock:'
+echo 'Which character would you like to unlock?'
 read inputVariable
 echo 'you have selected to Unlock:' $inputVariable
 echo ' '
@@ -318,12 +305,104 @@ awaiting_input
 echo 'Unlocking '$inputVariable
 
 
-	sqlplus $username/$password <<EOF
+	sqlplus $username/$password << EOF
 set echo off
 set heading off
 
 @sql/unlock_characters.sql
 $inputVariable
+exit;
+EOF
+
+}
+
+#selection_3 function
+selection_3()
+{ 
+echo 'Move Characters will move characters by editing the'
+echo 'X, Y, Z and scene_id in the objects table'
+
+confirm_selection
+
+echo ' '
+echo '-------------------------------------'
+echo ' '
+echo ' '
+echo 'Which character would you like to move?'
+echo ' note: character name and planet must be in lowercase'
+echo ' '
+echo 'Enter characer name: '
+read moveChar_char
+echo ' '
+echo ' '
+echo '-------------------------------------'
+echo ' '
+echo 'List of available planets:'
+echo ' '
+echo 'tatooine'
+echo 'naboo'
+echo 'corellia'
+echo 'lok'
+echo 'rori'
+echo 'talus'
+echo 'dantooine'
+echo 'dathomir'
+echo 'yavin4'
+echo 'endor'
+echo 'mustafar'
+echo ' '
+echo ' '
+echo '-------------------------------------'
+echo ' '
+echo ' '
+echo 'Which planet would you like to move the character to?'
+echo ' note: character name and planet must be in lowercase'
+echo ' '
+echo 'Enter planet name: '
+read moveChar_planet
+echo ' '
+echo '-------------------------------------'
+echo ' '
+echo 'Select the X Y Z coordinates that the character will move to'
+echo ' '
+echo 'Enter X:'
+read moveChar_X
+echo ' '
+echo 'Enter Y:'
+read moveChar_Y
+echo ' '
+echo 'Enter Z:'
+read moveChar_Z
+echo ' '
+echo '-------------------------------------'
+echo ' '
+echo 'You have selected:'
+echo 'Character: '$moveChar_char
+echo 'Planet: '$moveChar_planet
+echo 'X: '$moveChar_X
+echo 'Y: '$moveChar_Y
+echo 'Z: '$moveChar_Z
+echo ' '
+echo ' note: character name and planet must be in lowercase'
+echo ' '
+echo '-------------------------------------'
+echo ' '
+
+echo ' '
+echo 'This is your last chance to abort'
+awaiting_input
+echo 'Locking '$inputVariable
+
+	sqlplus -s $username/$password << EOF
+set echo off 
+set heading off
+
+@sql/move_characters.sql
+$moveChar_planet
+$moveChar_X
+$moveChar_Y
+$moveChar_Z
+$moveChar_char
 exit;
 EOF
 
@@ -346,7 +425,6 @@ echo ' '
 
 ##Logic starts here
 
-cant_paint
 main_console
 dba_credentials
 selection_list
